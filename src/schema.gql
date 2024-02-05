@@ -1,0 +1,33 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum AllowedDepartments {
+  ACCESSORIES
+  CLOTHING
+  INTERIOR
+}
+
+enum AllowedStockLevels {
+  LOW
+  OUT
+  STOCKED
+}
+
+type Product {
+  SKU: Int!
+  dept: AllowedDepartments!
+  description: String!
+  img_id: String!
+  name: String!
+  price: Int!
+  searchName: String!
+  stock: Int!
+  stock_level: AllowedStockLevels!
+}
+
+type Query {
+  getProductBySKU(SKU: Int!): Product
+  getProducts: [Product!]!
+  getProductsByDept(dept: AllowedDepartments): [Product!]
+}
