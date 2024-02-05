@@ -20,7 +20,7 @@ type Product {
   description: String!
   img_id: String!
   name: String!
-  price: Int!
+  price: Float!
   searchName: String!
   stock: Int!
   stock_level: AllowedStockLevels!
@@ -28,6 +28,7 @@ type Product {
 
 type Query {
   getProductBySKU(SKU: Int!): Product
+  getProductBySearchName(searchName: String!): Product
   getProducts: [Product!]!
   getProductsByDept(dept: AllowedDepartments): [Product!]
 }
