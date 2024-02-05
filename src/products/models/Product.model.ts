@@ -1,4 +1,10 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  Int,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { AllowedStockLevels } from './AllowedStockLevels';
 import { AllowedDepartments } from './AllowedDepartments';
 
@@ -16,7 +22,7 @@ export class Product {
   @Field()
   searchName: string;
 
-  @Field((type) => Int)
+  @Field((type) => Float)
   price: number;
 
   @Field((type) => AllowedDepartments)
