@@ -19,7 +19,6 @@ export class ProductsResolver {
     @Args()
     args: GetProductsByDeptArgs,
   ) {
-    console.log(args);
     if (!args?.dept) return mockProductData;
 
     const product = this.productsService.findByDept(args?.dept);
