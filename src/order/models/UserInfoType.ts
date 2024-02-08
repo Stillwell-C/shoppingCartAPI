@@ -1,0 +1,24 @@
+export type UserInfo = {
+  sameBillingAddress: boolean;
+  shippingFirstName: string;
+  shippingLastName: string;
+  shippingCompanyName: string;
+  shippingAddress: string;
+  shippingAddressNumber: string;
+  shippingCity: string;
+  shippingCountry: string;
+  shippingZip: string;
+  shippingPhone: string;
+  billingFirstName: string;
+  billingLastName: string;
+  billingCompanyName: string;
+  billingAddress: string;
+  billingAddressNumber: string;
+  billingCity: string;
+  billingCountry: string;
+  billingZip: string;
+  billingPhone: string;
+  creditCardNumber: string;
+  creditCardExpiry: string;
+  creditCardCVC: string;
+};
