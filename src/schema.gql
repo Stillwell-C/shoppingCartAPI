@@ -14,6 +14,23 @@ enum AllowedStockLevels {
   STOCKED
 }
 
+type Mutation {
+  addOrder(orderInfo: [OrderItem!]!, userInfo: UserInfo!): OrderReturn!
+}
+
+input OrderItem {
+  qty: Int!
+  searchName: String!
+}
+
+type OrderReturn {
+  error: Boolean!
+  errorItem: String
+  errorMsg: String
+  orderNumber: String!
+  success: Boolean!
+}
+
 type Product {
   SKU: Int!
   dept: AllowedDepartments!
@@ -31,4 +48,29 @@ type Query {
   getProductBySearchName(searchName: String!): Product
   getProducts: [Product!]!
   getProductsByDept(dept: AllowedDepartments): [Product!]
+}
+
+input UserInfo {
+  billingAddress: String
+  billingAddressNumber: String
+  billingCity: String
+  billingCompanyName: String
+  billingCountry: String
+  billingFirstName: String
+  billingLastName: String
+  billingPhone: String
+  billingZip: String
+  creditCardCVC: String!
+  creditCardExpiry: String!
+  creditCardNumber: String!
+  sameBillingAddress: Boolean!
+  shippingAddress: String!
+  shippingAddressNumber: String
+  shippingCity: String!
+  shippingCompanyName: String
+  shippingCountry: String!
+  shippingFirstName: String!
+  shippingLastName: String!
+  shippingPhone: String!
+  shippingZip: String!
 }
