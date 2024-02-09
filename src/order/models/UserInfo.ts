@@ -11,13 +11,13 @@ export class UserInfo {
   @Field()
   shippingLastName: string;
 
-  @Field()
+  @Field({ nullable: true })
   shippingCompanyName: string;
 
   @Field()
   shippingAddress: string;
 
-  @Field()
+  @Field({ nullable: true })
   shippingAddressNumber: string;
 
   @Field()
