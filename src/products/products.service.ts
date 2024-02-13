@@ -25,8 +25,8 @@ export class ProductsService {
       if (!product.stock) {
         return {
           error: true,
-          errorMsg: 'Out of stock.',
-          errorItem: product.searchName,
+          errorMsg: 'Out of stock. Please remove from cart and try again.',
+          errorItem: product.name,
         };
       }
       if (product.stock < item.qty) {
@@ -34,7 +34,7 @@ export class ProductsService {
           error: true,
           errorMsg:
             'Insufficient stock. Please reduce item quantity and try again.',
-          errorItem: product.searchName,
+          errorItem: product.name,
         };
       }
     }
@@ -48,8 +48,8 @@ export class ProductsService {
       if (!product.stock) {
         return {
           error: true,
-          errorMsg: 'Out of stock.',
-          errorItem: product.searchName,
+          errorMsg: 'Out of stock. Please remove from cart and try again.',
+          errorItem: product.name,
         };
       }
       if (product.stock < item.qty) {
@@ -57,7 +57,7 @@ export class ProductsService {
           error: true,
           errorMsg:
             'Insufficient stock. Please reduce item quantity and try again.',
-          errorItem: product.searchName,
+          errorItem: product.name,
         };
       }
       product.stock -= item.qty;
