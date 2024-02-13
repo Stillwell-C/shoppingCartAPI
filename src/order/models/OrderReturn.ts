@@ -1,11 +1,11 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class OrderReturn {
   @Field()
   success: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   orderNumber: string;
 
   @Field()
