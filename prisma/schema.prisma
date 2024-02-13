@@ -32,7 +32,7 @@ model Order {
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
   orderStatus           OrderStatus @default(PENDING)
-  sameBillingAddress    String
+  sameBillingAddress    Boolean
   shippingFirstName     String
   shippingLastName      String
   shippingCompanyName   String?
@@ -53,8 +53,8 @@ model Order {
   billingPhone          String?
   creditCardNumber      String
   creditCardExpiry      String
-  crediCardCVC          String
-  orderItem             OrderItem[]
+  creditCardCVC         String
+  orderItems            OrderItem[]
 }
 
 model OrderItem {
