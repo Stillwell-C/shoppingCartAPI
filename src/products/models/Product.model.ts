@@ -1,15 +1,16 @@
 import {
   Field,
   Float,
+  ID,
   Int,
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { AllowedStockLevels } from './AllowedStockLevels';
-import { AllowedDepartments } from './AllowedDepartments';
 
-registerEnumType(AllowedStockLevels, { name: 'AllowedStockLevels' });
-registerEnumType(AllowedDepartments, { name: 'AllowedDepartments' });
+import { StockLevels, Departments } from '@prisma/client';
+
+registerEnumType(StockLevels, { name: 'StockLevels' });
+registerEnumType(Departments, { name: 'Departments' });
 
 @ObjectType()
 export class Product {
@@ -25,8 +26,8 @@ export class Product {
   @Field((type) => Float)
   price: number;
 
-  @Field((type) => AllowedDepartments)
-  dept: AllowedDepartments;
+  @Field((type) => Departments)
+  dept: Departments;
 
   @Field()
   description: string;
@@ -37,6 +38,9 @@ export class Product {
   @Field((type) => Int)
   stock: number;
 
-  @Field((type) => AllowedStockLevels)
-  stock_level: AllowedStockLevels;
+  @Field((type) => StockLevels)
+  stock_level: StockLevels;
+
+  @Field((type) => ID, { nullable: true })
+  id?: string;
 }
