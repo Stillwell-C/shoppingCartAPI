@@ -4,6 +4,7 @@ import { mockProductData } from 'src/__mocks__/productData';
 import { AllowedDepartments } from './models/AllowedDepartments';
 import { Cart } from 'src/cart/models/Cart.model';
 import { OrderItem } from 'src/order/models/OrderItem';
+import { AllowedStockLevels } from './models/AllowedStockLevels';
 
 @Injectable()
 export class ProductsService {
@@ -61,6 +62,12 @@ export class ProductsService {
         };
       }
       product.stock -= item.qty;
+      if (product.stock <= 25) {
+        product.stock_level = AllowedStockLevels.LOW;
+      }
+      if (product.stock === 0) {
+        product.stock_level = AllowedStockLevels.OUT;
+      }
     }
     return { error: false, errorMsg: '', errorItem: null };
   }
