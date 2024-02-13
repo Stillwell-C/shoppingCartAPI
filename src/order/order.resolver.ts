@@ -8,10 +8,11 @@ export class OrderResolver {
   constructor(private readonly productsService: ProductsService) {}
 
   @Mutation((returns) => OrderReturn)
-  addOrder(@Args() args: OrderRequest) {
+  async addOrder(@Args() args: OrderRequest) {
     const { userInfo, orderInfo } = args;
     console.log(userInfo, orderInfo);
-    const stockCheck = this.productsService.confirmProductStock(orderInfo);
+    const stockCheck =
+      await this.productsService.confirmProductStock(orderInfo);
     if (stockCheck.error) {
       return {
         success: false,
@@ -22,7 +23,7 @@ export class OrderResolver {
       };
     }
     const adjustProductCheck =
-      this.productsService.adjustProductStockOnOrder(orderInfo);
+      await this.productsService.adjustProductStockOnOrder(orderInfo);
     if (adjustProductCheck.error) {
       return {
         success: false,
