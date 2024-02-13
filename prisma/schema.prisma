@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Product {
@@ -26,6 +27,43 @@ model Product {
   @@index([searchName])
 }
 
+model Order {
+  id                    String      @id @default(uuid())
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  orderStatus           OrderStatus @default(PENDING)
+  sameBillingAddress    String
+  shippingFirstName     String
+  shippingLastName      String
+  shippingCompanyName   String?
+  shippingAddress       String
+  shippingAddressNumber String?
+  shippingCity          String
+  shippingCountry       String
+  shippingZip           String
+  shippingPhone         String
+  billingFirstName      String?
+  billingLastName       String?
+  billingCompanyName    String?
+  billingAddress        String?
+  billingAddressNumber  String?
+  billingCity           String?
+  billingCountry        String?
+  billingZip            String?
+  billingPhone          String?
+  creditCardNumber      String
+  creditCardExpiry      String
+  crediCardCVC          String
+  orderItem             OrderItem[]
+}
+
+model OrderItem {
+  Order      Order  @relation(fields: [orderId], references: [id])
+  orderId    String @id @default(uuid())
+  searchName String
+  qty        Int
+}
+
 model Cart {
   id          String        @id @default(uuid())
   CartProduct CartProduct[]
@@ -38,6 +76,13 @@ model CartProduct {
   product   Product @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
+}
+
+enum OrderStatus {
+  PENDING
+  INPROCESS
+  SHIPPED
+  COMPLETED
 }
 
 enum Departments {
