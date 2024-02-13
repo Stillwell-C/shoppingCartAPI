@@ -2,10 +2,15 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { OrderReturn } from './models/OrderReturn';
 import { OrderRequest } from './dto/OrderRequest.ars';
 import { ProductsService } from 'src/products/products.service';
+import { OrderService } from './order.service';
+import { Prisma } from '@prisma/client';
 
 @Resolver()
 export class OrderResolver {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly orderService: OrderService,
+  ) {}
 
   @Mutation((returns) => OrderReturn)
   async addOrder(@Args() args: OrderRequest) {
@@ -33,12 +38,25 @@ export class OrderResolver {
         errorMsg: stockCheck.errorMsg,
       };
     }
-    return {
-      success: true,
-      orderNumber: 'testnumber',
-      error: false,
-      errorItem: null,
-      errorMsg: null,
-    };
+    try {
+      const order = await this.orderService.createOrder(userInfo, orderInfo);
+      return {
+        success: true,
+        orderNumber: order.id,
+        error: false,
+        errorItem: null,
+        errorMsg: null,
+      };
+    } catch (err) {
+      return {
+        success: false,
+        orderNumber: '',
+        error: true,
+        errorItem: null,
+        errorMsg:
+          err?.message ||
+          'An error occurred with your order. Please try again.',
+      };
+    }
   }
 }
