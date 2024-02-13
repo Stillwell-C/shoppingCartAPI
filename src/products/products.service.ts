@@ -1,28 +1,55 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from './models/Product.model';
 import { mockProductData } from 'src/__mocks__/productData';
 import { AllowedDepartments } from './models/AllowedDepartments';
 import { Cart } from 'src/cart/models/Cart.model';
 import { OrderItem } from 'src/order/models/OrderItem';
 import { AllowedStockLevels } from './models/AllowedStockLevels';
+import { DatabaseService } from 'src/database/database.service';
+import { Departments, Prisma, Product } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
+  constructor(private readonly databaseService: DatabaseService) {}
+
   findBySKU(id: number) {
     return mockProductData.find((product) => product.SKU === id);
   }
 
-  findBySearchName(searchName: string) {
-    return mockProductData.find((product) => product.searchName === searchName);
+  async findBySearchName(searchName: string): Promise<Product> {
+    // return mockProductData.find((product) => product.searchName === searchName);
+    return this.databaseService.product.findFirst({ where: { searchName } });
   }
 
-  findByDept(dept: AllowedDepartments) {
-    return mockProductData.filter((product) => product.dept === dept);
+  findByDept(dept?: Departments) {
+    // return mockProductData.filter((product) => product.dept === dept);
+    if (!dept) {
+      return this.databaseService.product.findMany();
+    }
+
+    return this.databaseService.product.findMany({ where: { dept } });
   }
 
-  confirmProductStock(orderItems: OrderItem[]) {
+  async createProduct(
+    productData: Prisma.ProductCreateInput,
+  ): Promise<Product> {
+    return this.databaseService.product.create({ data: productData });
+  }
+
+  async updateProduct(
+    id: string,
+    updateData: Prisma.ProductUpdateInput,
+  ): Promise<Product> {
+    return this.databaseService.product.update({
+      where: {
+        id,
+      },
+      data: updateData,
+    });
+  }
+
+  async confirmProductStock(orderItems: OrderItem[]) {
     for (const item of orderItems) {
-      const product = this.findBySearchName(item.searchName);
+      const product = await this.findBySearchName(item.searchName);
       if (!product.stock) {
         return {
           error: true,
@@ -42,9 +69,9 @@ export class ProductsService {
     return { error: false, errorMsg: '', errorItem: null };
   }
 
-  adjustProductStockOnOrder(orderItems: OrderItem[]) {
+  async adjustProductStockOnOrder(orderItems: OrderItem[]) {
     for (const item of orderItems) {
-      const product = this.findBySearchName(item.searchName);
+      const product = await this.findBySearchName(item.searchName);
       //Combine with top function logic
       if (!product.stock) {
         return {
@@ -62,12 +89,12 @@ export class ProductsService {
         };
       }
       product.stock -= item.qty;
-      if (product.stock <= 25) {
-        product.stock_level = AllowedStockLevels.LOW;
-      }
-      if (product.stock === 0) {
-        product.stock_level = AllowedStockLevels.OUT;
-      }
+      // if (product.stock <= 25) {
+      //   product.stock_level = AllowedStockLevels.LOW;
+      // }
+      // if (product.stock === 0) {
+      //   product.stock_level = AllowedStockLevels.OUT;
+      // }
     }
     return { error: false, errorMsg: '', errorItem: null };
   }
