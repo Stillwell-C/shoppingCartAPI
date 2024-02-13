@@ -1,9 +1,11 @@
-import { Args, Int, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Product } from './models/Product.model';
 import { mockProductData } from 'src/__mocks__/productData';
 import { ProductsService } from './products.service';
 import { AllowedDepartments } from './models/AllowedDepartments';
 import { GetProductsByDeptArgs } from './dto/getProductsByDept.args';
+import { Prisma } from '@prisma/client';
+import { CreateProductArgs } from './dto/createProduct.args';
 
 @Resolver()
 export class ProductsResolver {
@@ -19,8 +21,6 @@ export class ProductsResolver {
     @Args()
     args: GetProductsByDeptArgs,
   ) {
-    if (!args?.dept) return mockProductData;
-
     const product = this.productsService.findByDept(args?.dept);
     return product;
   }
@@ -35,5 +35,10 @@ export class ProductsResolver {
   getProductBySKU(@Args('SKU', { type: () => Int }) SKU: number) {
     const product = this.productsService.findBySKU(SKU);
     return product;
+  }
+
+  @Mutation((returns) => Product)
+  createProduct(@Args() createProductDto: CreateProductArgs) {
+    return this.productsService.createProduct(createProductDto);
   }
 }
