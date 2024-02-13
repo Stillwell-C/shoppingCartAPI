@@ -2,20 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-enum AllowedDepartments {
+enum Departments {
   ACCESSORIES
   CLOTHING
   INTERIOR
 }
 
-enum AllowedStockLevels {
-  LOW
-  OUT
-  STOCKED
-}
-
 type Mutation {
   addOrder(orderInfo: [OrderItem!]!, userInfo: UserInfo!): OrderReturn!
+  createProduct(SKU: Int!, dept: Departments!, description: String!, img_id: String!, name: String!, price: Float!, searchName: String!, stock: Int!, stock_level: StockLevels!): Product!
 }
 
 input OrderItem {
@@ -27,27 +22,34 @@ type OrderReturn {
   error: Boolean!
   errorItem: String
   errorMsg: String
-  orderNumber: String!
+  orderNumber: String
   success: Boolean!
 }
 
 type Product {
   SKU: Int!
-  dept: AllowedDepartments!
+  dept: Departments!
   description: String!
+  id: ID
   img_id: String!
   name: String!
   price: Float!
   searchName: String!
   stock: Int!
-  stock_level: AllowedStockLevels!
+  stock_level: StockLevels!
 }
 
 type Query {
   getProductBySKU(SKU: Int!): Product
   getProductBySearchName(searchName: String!): Product
   getProducts: [Product!]!
-  getProductsByDept(dept: AllowedDepartments): [Product!]
+  getProductsByDept(dept: Departments): [Product!]
+}
+
+enum StockLevels {
+  LOW
+  OUT
+  STOCKED
 }
 
 input UserInfo {
