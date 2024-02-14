@@ -9,7 +9,7 @@ export class OrderRequest {
   userInfo: UserInfo;
 
   @Field((type) => [OrderItem])
-  orderInfo: Prisma.OrderItemCreateInput[];
+  orderInfo: Prisma.OrderItemCreateManyInput[];
 
   @Field((type) => Float)
   orderTotal: number;
