@@ -18,13 +18,15 @@ export class OrderResolver {
   async order(@Args('orderID') orderID: string) {
     const order = await this.orderService.findOrder(orderID);
     if (order.id) {
-      const orderObj = {
-        id: order.id,
-        orderDate: order.createdAt,
-        orderStatus: order.orderStatus,
-        orderItems: order.orderItems,
-      };
-      return orderObj;
+      //   const orderObj = {
+      //     id: order.id,
+      //     orderDate: order.createdAt,
+      //     orderStatus: order.orderStatus,
+      //     orderItems: order.orderItems,
+      //     orderTotal: order.orderTotal,
+      //   };
+      //   return orderObj;
+      return order;
     } else {
       throw new HttpException(
         {
@@ -38,32 +40,35 @@ export class OrderResolver {
 
   @Mutation((returns) => OrderReturn)
   async addOrder(@Args() args: OrderRequest) {
-    const { userInfo, orderInfo } = args;
+    const { userInfo, orderInfo, orderTotal } = args;
     console.log(userInfo, orderInfo);
-    const stockCheck =
-      await this.productsService.confirmProductStock(orderInfo);
-    if (stockCheck.error) {
-      return {
-        success: false,
-        orderNumber: null,
-        error: true,
-        errorItem: stockCheck.errorItem,
-        errorMsg: stockCheck.errorMsg,
-      };
-    }
-    const adjustProductCheck =
-      await this.productsService.adjustProductStockOnOrder(orderInfo);
-    if (adjustProductCheck.error) {
-      return {
-        success: false,
-        orderNumber: null,
-        error: true,
-        errorItem: stockCheck.errorItem,
-        errorMsg: stockCheck.errorMsg,
-      };
-    }
+    // const stockCheck =
+    //   await this.productsService.confirmProductStock(orderInfo);
+    // if (stockCheck.error) {
+    //   return {
+    //     success: false,
+    //     orderNumber: null,
+    //     error: true,
+    //     errorItem: stockCheck.errorItem,
+    //     errorMsg: stockCheck.errorMsg,
+    //   };
+    // }
+    // const adjustProductCheck =
+    //   await this.productsService.adjustProductStockOnOrder(orderInfo);
+    // if (adjustProductCheck.error) {
+    //   return {
+    //     success: false,
+    //     orderNumber: null,
+    //     error: true,
+    //     errorItem: stockCheck.errorItem,
+    //     errorMsg: stockCheck.errorMsg,
+    //   };
+    // }
     try {
-      const order = await this.orderService.createOrder(userInfo, orderInfo);
+      const order = await this.orderService.createOrder(
+        { orderTotal, ...userInfo },
+        orderInfo,
+      );
       return {
         success: true,
         orderNumber: order.id,
