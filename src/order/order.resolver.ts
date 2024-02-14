@@ -16,25 +16,20 @@ export class OrderResolver {
 
   @Query((returns) => FindOrderReturnData)
   async order(@Args('orderID') orderID: string) {
-    const order = await this.orderService.findOrder(orderID.trim());
-
-    if (order?.id) {
-      //   const orderObj = {
-      //     id: order.id,
-      //     orderDate: order.createdAt,
-      //     orderStatus: order.orderStatus,
-      //     orderItems: order.orderItems,
-      //     orderTotal: order.orderTotal,
-      //   };
-      //   return orderObj;
-      return order;
-    } else {
+    try {
+      const order = await this.orderService.findOrder(orderID.trim());
+      if (order?.id) {
+        return order;
+      } else {
+        throw new HttpException(
+          'Order not found. Please reconfirm ID.',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+    } catch (err) {
       throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Order not found. Please reconfirm ID.',
-        },
-        HttpStatus.NOT_FOUND,
+        err.message || 'An error occurred. Please try again.',
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -42,29 +37,31 @@ export class OrderResolver {
   @Mutation((returns) => OrderReturn)
   async addOrder(@Args() args: OrderRequest) {
     const { userInfo, orderInfo, orderTotal } = args;
-    console.log(userInfo, orderInfo);
-    // const stockCheck =
-    //   await this.productsService.confirmProductStock(orderInfo);
-    // if (stockCheck.error) {
-    //   return {
-    //     success: false,
-    //     orderNumber: null,
-    //     error: true,
-    //     errorItem: stockCheck.errorItem,
-    //     errorMsg: stockCheck.errorMsg,
-    //   };
-    // }
-    // const adjustProductCheck =
-    //   await this.productsService.adjustProductStockOnOrder(orderInfo);
-    // if (adjustProductCheck.error) {
-    //   return {
-    //     success: false,
-    //     orderNumber: null,
-    //     error: true,
-    //     errorItem: stockCheck.errorItem,
-    //     errorMsg: stockCheck.errorMsg,
-    //   };
-    // }
+
+    const stockCheck =
+      await this.productsService.confirmProductStock(orderInfo);
+    if (stockCheck.error) {
+      return {
+        success: false,
+        orderNumber: null,
+        error: true,
+        errorItem: stockCheck.errorItem,
+        errorMsg: stockCheck.errorMsg,
+      };
+    }
+
+    const adjustProductCheck =
+      await this.productsService.adjustProductStockOnOrder(orderInfo);
+    if (adjustProductCheck.error) {
+      return {
+        success: false,
+        orderNumber: null,
+        error: true,
+        errorItem: stockCheck.errorItem,
+        errorMsg: stockCheck.errorMsg,
+      };
+    }
+
     try {
       const order = await this.orderService.createOrder(
         { orderTotal, ...userInfo },
@@ -78,6 +75,7 @@ export class OrderResolver {
         errorMsg: null,
       };
     } catch (err) {
+      await this.productsService.returnProductsToStock(orderInfo);
       throw new HttpException(
         err.message || 'An error occurred. Please try again.',
         HttpStatus.BAD_REQUEST,
@@ -99,7 +97,7 @@ export class OrderResolver {
         );
       }
       const deletedOrder = await this.orderService.deleteOrder(id);
-      console.log(deletedOrder);
+      await this.productsService.returnProductsToStock(order.orderItems);
       return deletedOrder;
     } catch (err) {
       throw new HttpException(
