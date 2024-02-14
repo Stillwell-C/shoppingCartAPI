@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { mockProductData } from 'src/__mocks__/productData';
-import { AllowedDepartments } from './models/AllowedDepartments';
-import { Cart } from 'src/cart/models/Cart.model';
-import { OrderItem } from 'src/order/models/OrderItem';
-import { AllowedStockLevels } from './models/AllowedStockLevels';
 import { DatabaseService } from 'src/database/database.service';
-import { Departments, Prisma, Product } from '@prisma/client';
+import { Departments, Prisma, Product, StockLevels } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -47,7 +43,7 @@ export class ProductsService {
     });
   }
 
-  async confirmProductStock(orderItems: OrderItem[]) {
+  async confirmProductStock(orderItems: Prisma.OrderItemCreateManyInput[]) {
     for (const item of orderItems) {
       const product = await this.findBySearchName(item.searchName);
       if (!product.stock) {
@@ -69,10 +65,11 @@ export class ProductsService {
     return { error: false, errorMsg: '', errorItem: null };
   }
 
-  async adjustProductStockOnOrder(orderItems: OrderItem[]) {
+  async adjustProductStockOnOrder(
+    orderItems: Prisma.OrderItemCreateManyInput[],
+  ) {
     for (const item of orderItems) {
       const product = await this.findBySearchName(item.searchName);
-      //Combine with top function logic
       if (!product.stock) {
         return {
           error: true,
@@ -88,14 +85,64 @@ export class ProductsService {
           errorItem: product.name,
         };
       }
-      product.stock -= item.qty;
-      // if (product.stock <= 25) {
-      //   product.stock_level = AllowedStockLevels.LOW;
-      // }
-      // if (product.stock === 0) {
-      //   product.stock_level = AllowedStockLevels.OUT;
-      // }
+      let stockUpdate = product.stock_level;
+      if (
+        product.stock - item.qty <= 25 &&
+        product.stock_level !== StockLevels.LOW
+      ) {
+        stockUpdate = StockLevels.LOW;
+      }
+      if (
+        product.stock - item.qty === 0 &&
+        product.stock_level !== StockLevels.OUT
+      ) {
+        stockUpdate = StockLevels.OUT;
+      }
+      await this.databaseService.product.update({
+        where: {
+          searchName: item.searchName,
+        },
+        data: {
+          stock: {
+            decrement: item.qty,
+          },
+          stock_level: stockUpdate,
+        },
+      });
     }
     return { error: false, errorMsg: '', errorItem: null };
+  }
+
+  async returnProductsToStock(orderItems: Prisma.OrderItemCreateManyInput[]) {
+    for (const item of orderItems) {
+      const product = await this.findBySearchName(item.searchName);
+
+      let stockUpdate = product.stock_level;
+
+      if (
+        product.stock + item.qty > 25 &&
+        product.stock_level !== StockLevels.STOCKED
+      ) {
+        stockUpdate = StockLevels.STOCKED;
+      }
+      if (
+        product.stock + item.qty <= 25 &&
+        product.stock_level !== StockLevels.LOW
+      ) {
+        stockUpdate = StockLevels.LOW;
+      }
+
+      await this.databaseService.product.update({
+        where: {
+          searchName: item.searchName,
+        },
+        data: {
+          stock: {
+            increment: item.qty,
+          },
+          stock_level: stockUpdate,
+        },
+      });
+    }
   }
 }
