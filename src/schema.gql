@@ -10,7 +10,8 @@ enum Departments {
 
 type FindOrderOrderItem {
   Product: Product!
-  orderId: ID!
+  id: ID!
+  orderId: String!
   price: Float!
   qty: Int!
   searchName: String!
@@ -50,6 +51,7 @@ type FindOrderReturnData {
 type Mutation {
   addOrder(orderInfo: [OrderItem!]!, orderTotal: Float!, userInfo: UserInfo!): OrderReturn!
   createProduct(SKU: Int!, dept: Departments!, description: String!, img_id: String!, name: String!, price: Float!, searchName: String!, stock: Int!, stock_level: StockLevels!): Product!
+  deleteOrder(id: String!): FindOrderReturnData!
 }
 
 input OrderItem {
