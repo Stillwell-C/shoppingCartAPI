@@ -44,4 +44,10 @@ export class OrderService {
       },
     });
   }
+
+  async deleteOrder(id: string): Promise<Order> {
+    return this.databaseService.order.delete({
+      where: { id },
+    });
+  }
 }
