@@ -16,8 +16,9 @@ export class OrderResolver {
 
   @Query((returns) => FindOrderReturnData)
   async order(@Args('orderID') orderID: string) {
-    const order = await this.orderService.findOrder(orderID);
-    if (order.id) {
+    const order = await this.orderService.findOrder(orderID.trim());
+
+    if (order?.id) {
       //   const orderObj = {
       //     id: order.id,
       //     orderDate: order.createdAt,
@@ -77,15 +78,34 @@ export class OrderResolver {
         errorMsg: null,
       };
     } catch (err) {
-      return {
-        success: false,
-        orderNumber: '',
-        error: true,
-        errorItem: null,
-        errorMsg:
-          err?.message ||
-          'An error occurred with your order. Please try again.',
-      };
+      throw new HttpException(
+        err.message || 'An error occurred. Please try again.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Mutation((returns) => FindOrderReturnData)
+  async deleteOrder(@Args('id') id: string) {
+    try {
+      const order = await this.orderService.findOrder(id);
+      if (
+        order.orderStatus !== 'INPROCESS' &&
+        order.orderStatus !== 'PENDING'
+      ) {
+        throw new HttpException(
+          `Action could not be completed because order status is: ${order.orderStatus}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const deletedOrder = await this.orderService.deleteOrder(id);
+      console.log(deletedOrder);
+      return deletedOrder;
+    } catch (err) {
+      throw new HttpException(
+        err.message || 'An error occurred. Please try again.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
