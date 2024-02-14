@@ -9,6 +9,7 @@ enum Departments {
 }
 
 type FindOrderOrderItem {
+  Product: Product!
   orderId: ID!
   price: Float!
   qty: Int!
