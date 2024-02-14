@@ -1,4 +1,5 @@
 import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Product } from 'src/products/models/Product.model';
 
 @ObjectType()
 export class FindOrderOrderItem {
@@ -13,4 +14,7 @@ export class FindOrderOrderItem {
 
   @Field(() => Float)
   price: number;
+
+  @Field(() => Product)
+  Product: Product;
 }
