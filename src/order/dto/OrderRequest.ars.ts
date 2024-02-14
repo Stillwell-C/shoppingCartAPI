@@ -1,4 +1,4 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { ArgsType, Field, Float } from '@nestjs/graphql';
 import { UserInfo } from '../models/UserInfo';
 import { OrderItem } from '../models/OrderItem';
 import { Prisma } from '@prisma/client';
@@ -10,4 +10,7 @@ export class OrderRequest {
 
   @Field((type) => [OrderItem])
   orderInfo: Prisma.OrderItemCreateInput[];
+
+  @Field((type) => Float)
+  orderTotal: number;
 }
