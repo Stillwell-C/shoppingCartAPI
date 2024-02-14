@@ -4,6 +4,9 @@ import { Product } from 'src/products/models/Product.model';
 @ObjectType()
 export class FindOrderOrderItem {
   @Field(() => ID)
+  id: string;
+
+  @Field()
   orderId: string;
 
   @Field()
