@@ -1,9 +1,11 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { OrderReturn } from './models/OrderReturn';
 import { OrderRequest } from './dto/OrderRequest.ars';
 import { ProductsService } from 'src/products/products.service';
 import { OrderService } from './order.service';
 import { Prisma } from '@prisma/client';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { FindOrderReturnData } from './models/FindOrderReturnData';
 
 @Resolver()
 export class OrderResolver {
@@ -11,6 +13,28 @@ export class OrderResolver {
     private readonly productsService: ProductsService,
     private readonly orderService: OrderService,
   ) {}
+
+  @Query((returns) => FindOrderReturnData)
+  async order(@Args('orderID') orderID: string) {
+    const order = await this.orderService.findOrder(orderID);
+    if (order.id) {
+      const orderObj = {
+        id: order.id,
+        orderDate: order.createdAt,
+        orderStatus: order.orderStatus,
+        orderItems: order.orderItems,
+      };
+      return orderObj;
+    } else {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Order not found. Please reconfirm ID.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
 
   @Mutation((returns) => OrderReturn)
   async addOrder(@Args() args: OrderRequest) {
