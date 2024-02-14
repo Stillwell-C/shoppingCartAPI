@@ -23,6 +23,7 @@ model Product {
   stock       Int
   stock_level StockLevels
   CartProduct CartProduct[]
+  OrderItem   OrderItem[]
 
   @@index([searchName])
 }
@@ -59,12 +60,13 @@ model Order {
 }
 
 model OrderItem {
-  id         String @id @default(uuid())
-  Order      Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id         String  @id @default(uuid())
+  Order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId    String
   searchName String
   qty        Int
-  price      Float  @default(0.0)
+  price      Float   @default(0.0)
+  Product    Product @relation(fields: [searchName], references: [searchName])
 }
 
 model Cart {
