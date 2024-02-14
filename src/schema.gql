@@ -8,12 +8,51 @@ enum Departments {
   INTERIOR
 }
 
+type FindOrderOrderItem {
+  orderId: ID!
+  price: Float!
+  qty: Int!
+  searchName: String!
+}
+
+type FindOrderReturnData {
+  billingAddress: String
+  billingAddressNumber: String
+  billingCity: String
+  billingCompanyName: String
+  billingCountry: String
+  billingFirstName: String
+  billingLastName: String
+  billingPhone: String
+  billingZip: String
+  createdAt: String!
+  creditCardCVC: String!
+  creditCardExpiry: String!
+  creditCardNumber: String!
+  id: ID!
+  orderItems: [FindOrderOrderItem!]!
+  orderStatus: String!
+  orderTotal: Float!
+  sameBillingAddress: Boolean!
+  shippingAddress: String!
+  shippingAddressNumber: String
+  shippingCity: String!
+  shippingCompanyName: String
+  shippingCountry: String!
+  shippingFirstName: String!
+  shippingLastName: String!
+  shippingPhone: String!
+  shippingZip: String!
+  updatedAt: String!
+}
+
 type Mutation {
-  addOrder(orderInfo: [OrderItem!]!, userInfo: UserInfo!): OrderReturn!
+  addOrder(orderInfo: [OrderItem!]!, orderTotal: Float!, userInfo: UserInfo!): OrderReturn!
   createProduct(SKU: Int!, dept: Departments!, description: String!, img_id: String!, name: String!, price: Float!, searchName: String!, stock: Int!, stock_level: StockLevels!): Product!
 }
 
 input OrderItem {
+  price: Float!
   qty: Int!
   searchName: String!
 }
@@ -44,6 +83,7 @@ type Query {
   getProductBySearchName(searchName: String!): Product
   getProducts: [Product!]!
   getProductsByDept(dept: Departments): [Product!]
+  order(orderID: String!): FindOrderReturnData!
 }
 
 enum StockLevels {
