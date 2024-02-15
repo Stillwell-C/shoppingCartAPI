@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { mockProductData } from 'src/__mocks__/productData';
 import { DatabaseService } from 'src/database/database.service';
 import { Departments, Prisma, Product, StockLevels } from '@prisma/client';
 
@@ -7,17 +6,16 @@ import { Departments, Prisma, Product, StockLevels } from '@prisma/client';
 export class ProductsService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  findBySKU(id: number) {
-    return mockProductData.find((product) => product.SKU === id);
+  async findProduct(searchName?: string, SKU?: number) {
+    return this.databaseService.product.findUnique({
+      where: {
+        searchName,
+        SKU,
+      },
+    });
   }
 
-  async findBySearchName(searchName: string): Promise<Product> {
-    // return mockProductData.find((product) => product.searchName === searchName);
-    return this.databaseService.product.findFirst({ where: { searchName } });
-  }
-
-  findByDept(dept?: Departments) {
-    // return mockProductData.filter((product) => product.dept === dept);
+  async findProducts(dept?: Departments) {
     if (!dept) {
       return this.databaseService.product.findMany();
     }
@@ -45,7 +43,7 @@ export class ProductsService {
 
   async confirmProductStock(orderItems: Prisma.OrderItemCreateManyInput[]) {
     for (const item of orderItems) {
-      const product = await this.findBySearchName(item.searchName);
+      const product = await this.findProduct(item.searchName);
       if (!product.stock) {
         return {
           error: true,
@@ -69,7 +67,7 @@ export class ProductsService {
     orderItems: Prisma.OrderItemCreateManyInput[],
   ) {
     for (const item of orderItems) {
-      const product = await this.findBySearchName(item.searchName);
+      const product = await this.findProduct(item.searchName);
       if (!product.stock) {
         return {
           error: true,
@@ -115,7 +113,7 @@ export class ProductsService {
 
   async returnProductsToStock(orderItems: Prisma.OrderItemCreateManyInput[]) {
     for (const item of orderItems) {
-      const product = await this.findBySearchName(item.searchName);
+      const product = await this.findProduct(item.searchName);
 
       let stockUpdate = product.stock_level;
 
