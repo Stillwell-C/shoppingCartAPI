@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { OrderReturn } from './models/OrderReturn';
-import { OrderRequest } from './dto/OrderRequest.ars';
+import { OrderRequest } from './dto/OrderRequest.args';
 import { ProductsService } from 'src/products/products.service';
 import { OrderService } from './order.service';
 import { Prisma } from '@prisma/client';
