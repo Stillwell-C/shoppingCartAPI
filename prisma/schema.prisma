@@ -83,6 +83,12 @@ model CartProduct {
   quantity  Int
 }
 
+model MailingListEmail {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 enum OrderStatus {
   PENDING
   INPROCESS
