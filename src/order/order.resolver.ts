@@ -3,7 +3,6 @@ import { OrderReturn } from './models/OrderReturn';
 import { OrderRequest } from './dto/OrderRequest.args';
 import { ProductsService } from 'src/products/products.service';
 import { OrderService } from './order.service';
-import { Prisma } from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { FindOrderReturnData } from './models/FindOrderReturnData';
 
@@ -38,6 +37,7 @@ export class OrderResolver {
   async addOrder(@Args() args: OrderRequest) {
     const { userInfo, orderInfo, orderTotal } = args;
 
+    //Confirm stock available
     const stockCheck =
       await this.productsService.confirmProductStock(orderInfo);
     if (stockCheck.error) {
@@ -50,6 +50,7 @@ export class OrderResolver {
       };
     }
 
+    //Make adjustments to stock
     const adjustProductCheck =
       await this.productsService.adjustProductStockOnOrder(orderInfo);
     if (adjustProductCheck.error) {
@@ -63,6 +64,7 @@ export class OrderResolver {
     }
 
     try {
+      //Create order
       const order = await this.orderService.createOrder(
         { orderTotal, ...userInfo },
         orderInfo,
@@ -75,7 +77,9 @@ export class OrderResolver {
         errorMsg: null,
       };
     } catch (err) {
+      //If error occurs, return stock to original
       await this.productsService.returnProductsToStock(orderInfo);
+
       throw new HttpException(
         err.message || 'An error occurred. Please try again.',
         HttpStatus.BAD_REQUEST,
@@ -87,6 +91,8 @@ export class OrderResolver {
   async deleteOrder(@Args('id') id: string) {
     try {
       const order = await this.orderService.findOrder(id);
+
+      //Throw error if order is SHIPPED or COMPLETED
       if (
         order.orderStatus !== 'INPROCESS' &&
         order.orderStatus !== 'PENDING'
@@ -96,8 +102,12 @@ export class OrderResolver {
           HttpStatus.BAD_REQUEST,
         );
       }
+
       const deletedOrder = await this.orderService.deleteOrder(id);
+
+      //Return items from order to stock
       await this.productsService.returnProductsToStock(order.orderItems);
+
       return deletedOrder;
     } catch (err) {
       throw new HttpException(
