@@ -18,8 +18,6 @@ export class MailingListResolver {
       return await this.mailingListService.create(args);
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        // The .code property can be accessed in a type-safe manner
-
         if (err.code === 'P2002') {
           throw new HttpException(
             'Email already on mailing list.',
