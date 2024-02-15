@@ -48,8 +48,15 @@ type FindOrderReturnData {
   updatedAt: String!
 }
 
+type MailingListEmail {
+  createdAt: String!
+  email: String!
+  id: ID!
+}
+
 type Mutation {
   addOrder(orderInfo: [OrderItem!]!, orderTotal: Float!, userInfo: UserInfo!): OrderReturn!
+  createEmail(email: String!): MailingListEmail!
   createProduct(SKU: Int!, dept: Departments!, description: String!, img_id: String!, name: String!, price: Float!, searchName: String!, stock: Int!, stock_level: StockLevels!): Product!
   deleteOrder(id: String!): FindOrderReturnData!
 }
@@ -82,11 +89,9 @@ type Product {
 }
 
 type Query {
-  getProductBySKU(SKU: Int!): Product
-  getProductBySearchName(searchName: String!): Product
-  getProducts: [Product!]!
-  getProductsByDept(dept: Departments): [Product!]
   order(orderID: String!): FindOrderReturnData!
+  product(SKU: Int, searchName: String): Product!
+  products(dept: Departments): [Product!]!
 }
 
 enum StockLevels {
