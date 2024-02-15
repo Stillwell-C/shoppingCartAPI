@@ -1,40 +1,31 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Product } from './models/Product.model';
-import { mockProductData } from 'src/__mocks__/productData';
 import { ProductsService } from './products.service';
-import { AllowedDepartments } from './models/AllowedDepartments';
-import { GetProductsByDeptArgs } from './dto/getProductsByDept.args';
-import { Prisma } from '@prisma/client';
+import { GetProductsArgs } from './dto/getProducts.args';
 import { CreateProductArgs } from './dto/createProduct.args';
+import { ProductArgs } from './dto/product.args';
 
 @Resolver()
 export class ProductsResolver {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Query(() => Product)
+  product(@Args() args: ProductArgs) {
+    const product = this.productsService.findProduct(
+      args?.searchName,
+      args?.SKU,
+    );
+    return product;
+  }
+
   @Query(() => [Product])
-  getProducts() {
-    return mockProductData;
-  }
-
-  @Query((returns) => [Product], { nullable: true })
-  getProductsByDept(
+  async products(
     @Args()
-    args: GetProductsByDeptArgs,
+    args: GetProductsArgs,
   ) {
-    const product = this.productsService.findByDept(args?.dept);
-    return product;
-  }
-
-  @Query((returns) => Product, { nullable: true })
-  getProductBySearchName(@Args('searchName') searchName: string) {
-    const product = this.productsService.findBySearchName(searchName);
-    return product;
-  }
-
-  @Query((returns) => Product, { nullable: true })
-  getProductBySKU(@Args('SKU', { type: () => Int }) SKU: number) {
-    const product = this.productsService.findBySKU(SKU);
-    return product;
+    const products = await this.productsService.findProducts(args?.dept);
+    const sortedProducts = products.sort((a, b) => a.SKU - b.SKU);
+    return sortedProducts;
   }
 
   @Mutation((returns) => Product)
